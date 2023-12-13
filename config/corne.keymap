@@ -60,6 +60,22 @@
                 bindings = <&kp SLASH>, <&kp EXCL>;
                 mods = <(MOD_RSFT)>;
             };
+            dikb: diktor_b {
+                compatible = "zmk,behavior-mod-morph";
+                label = "DIKTOR_COL_MODS_FOR_B";
+                #binding-cells = <0>;
+                bindings = <&kp B>, <&kp R>;
+                mods = <(MOD_RCTL)>;
+                keep-mods = <(MOD_RCTL)>;
+            };
+            mtdb: mod_tap_dikb {
+                compatible = "zmk,behavior-hold-tap";
+                label = "MOD_TAP_DIKTOR_B";
+                #binding-cells = <2>;
+                bindings = <&kp>, <&dikb>;
+                flavor = "balanced";
+                tapping-term-ms = <200>;
+            };
         };
 
         macros {
@@ -127,7 +143,7 @@
 //                         ╰───────┴───────┴───────╯     ╰───────┴───────┴───────╯
                         bindings = <
           &kp GRAVE &kp W         &dsoft        &kp Z         &dcomma           &ddot         &kp P         &kp D            &kp R         &kp L        &kp X         &kp I       
-          &dbsoft   &mt LGUI E    &mt LALT B    &mt LSHFT T   &mt LCTRL J       &kp F         &kp K         &mt RCTRL Y      &mt RSHFT N   &mt RALT C   &mt RGUI H    &kp Q
+          &dbsoft   &mt LGUI E    &mtdb LALT B  &mt LSHFT T   &mt LCTRL J       &kp F         &kp K         &mt RCTRL Y      &mt RSHFT N   &mt RALT C   &mt RGUI H    &kp Q
           &kp BSLH  &kp A         &kp APOS      &kp LBKT      &kp S             &kp DOT       &kp COMMA     &kp V            &kp G         &kp U        &kp SEMI      &kp O
                                             &mo MED   &lt RUN BSPC   &lt MOS RET   &lt FUN TAB   &lt NUM SPACE   &mo MED
                         >;
