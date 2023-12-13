@@ -18,12 +18,12 @@
 &lt { 
     flavor = "balanced";
     tapping-term-ms = <200>;
-    quick-tap-ms = <200>; 
+    quick-tap-ms = <150>; 
 };
 &mt { 
     flavor = "balanced";
     tapping-term-ms = <200>;
-    quick-tap-ms = <200>; 
+    quick-tap-ms = <150>; 
 };
 &mmv {
     time-to-max-speed-ms = <500>;
