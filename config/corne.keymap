@@ -3,36 +3,37 @@
 #include <dt-bindings/zmk/bt.h>
 #include <dt-bindings/zmk/outputs.h>
 
-#define ZMK_MOUSE_DEFAULT_MOVE_VAL 800  // 600
-#define ZMK_MOUSE_DEFAULT_SCRL_VAL 20   // 10
-
-#include <dt-bindings/zmk/mouse.h>
-#include <behaviors/mouse_keys.dtsi>
-
 #define ENG 0   // English - Colemak-DH
-#define ENN 1   // English navigation
-#define NUE 2   // English numerics
-#define SYE 3   // English symbols (shifted numerics)
-#define RUS 4   // Russian - Diktor
-#define RUN 5   // Russian navigation
-#define NUR 6   // Russian numerics
-#define SYR 7   // Russian symbols (shifted numerics)
-#define FUN 8   // Function keys
-#define FN2 9   // Extended Function keys
-#define MED 10  // Media controls
-#define MOS 11  // Mouse
-#define FMO 12  // Fast Mouse overlay
-#define SMO 13  // Slow Mouse overlay
-#define BTN 14  // Buttons for external pointing device
-#define BTO 15  // BT and outputs
-#define DGR 16  // Dangerous behaviors
+#define EPP 1   // English Cpp overlay
+#define ENN 2   // English navigation
+#define NUE 3   // English numerics
+#define SYE 4   // English symbols (shifted numerics)
+#define RUS 5   // Russian - Diktor
+#define RUN 6   // Russian navigation
+#define NUR 7   // Russian numerics
+#define SYR 8   // Russian symbols (shifted numerics)
+#define FUN 9   // Function keys
+#define FN2 10  // Extended Function keys
+#define MED 11  // Media controls
+#define MOS 12  // Mouse
+#define FMO 13  // Fast Mouse overlay
+#define SMO 14  // Slow Mouse overlay
+#define BTN 15  // Buttons for external pointing device
+#define BTO 16  // BT and outputs
+#define DGR 17  // Dangerous behaviors
 
+// Global U_ser settings
 #define U_TO_RUS_SCUT LC(LS(N2))
 #define U_TO_ENG_SCUT LC(LS(N1))
 
-#define U_TAPPING_TERM 280
+#define U_TAPPING_TERM 300
 #define U_QUICK_TAP 0
 #define U_STREAK_DECAY 150
+#define U_COMBO_TIMEOUT 75
+#define U_COMBO_STREAK_DECAY 300
+#define U_ANTMORPH_DELAY 1000
+#define U_ANTMORPH_MACRO_TAP 3
+#define U_ANTMORPH_MACRO_WAIT 10
 
 #define LEFT_HAND_KEYS   \
      0  1  2  3  4  5    \
@@ -49,6 +50,11 @@
 
 #define RIGHT_THUMB_KEYS \
                          39 40 41
+                     
+#include "colemator/mouse.dtsi"
+#include "colemator/antecedent_morph_cpp.dtsi"
+#include "colemator/antecedent_morph_english.dtsi"
+#include "colemator/diktor.dtsi"
 
 &lt { 
     flavor = "balanced";
@@ -59,19 +65,6 @@
     flavor = "balanced";
     tapping-term-ms = <U_TAPPING_TERM>;
     quick-tap-ms = <U_QUICK_TAP>; 
-};
-
-&mmv {
-    acceleration-exponent = <1>;  // 1
-    time-to-max-speed-ms = <300>; // 300
-    delay-ms = <0>;
-    trigger-period-ms = <8>;      // 16
-};
-&msc {
-    acceleration-exponent = <1>;  // 0
-    time-to-max-speed-ms = <40>;  // 300
-    delay-ms = <0>;
-    trigger-period-ms = <8>;      // 16
 };
 
 &caps_word {
@@ -211,522 +204,6 @@
                 bindings = <&kp N0>, <&kp AMPERSAND>;
                 mods = <(MOD_RSFT)>;
             };
-            
-            // Russian layer
-            ru_caps_word: russian_caps_word {
-                // behavior-caps-word is useless for Russian as it doesn't shift chars outside of a-z
-                // loking forward to PR#2043's &capslock_word
-                compatible = "zmk,behavior-caps-word";
-                #binding-cells = <0>;
-                continue-list = <UNDERSCORE RS(MINUS) BACKSPACE DELETE GRAVE LBKT RBKT APOS DOT COMMA SEMI>;
-            };
-            //  Ц >> Q
-            dikw: diktor_w {
-                compatible = "zmk,behavior-mod-morph";
-                label = "DIKTOR_COL_MODS_FOR_W";
-                #binding-cells = <0>;
-                bindings = <&kp W>, <&kp Q>;
-                mods = <(MOD_RCTL|MOD_RALT|MOD_RGUI)>;
-                keep-mods = <(MOD_RCTL|MOD_RALT|MOD_RGUI)>;
-            };
-            //  ь/ъ >> W
-            dikm: diktor_m {
-                compatible = "zmk,behavior-mod-morph";
-                label = "DIKTOR_COL_MODS_FOR_M";
-                #binding-cells = <0>;
-                bindings = <&kp M>, <&kp W>;
-                mods = <(MOD_RCTL|MOD_RALT|MOD_RGUI)>;
-                keep-mods = <(MOD_RCTL|MOD_RALT|MOD_RGUI)>;
-            };
-            dsoft: diktor_soft {
-                compatible = "zmk,behavior-mod-morph";
-                label = "DIKTOR_SOFT_HARD_SIGN";
-                #binding-cells = <0>;
-                bindings = <&dikm>, <&kp RBKT>;
-                mods = <(MOD_RSFT)>;
-            };
-            //  Я >> F
-            dikz: diktor_z {
-                compatible = "zmk,behavior-mod-morph";
-                label = "DIKTOR_COL_MODS_FOR_Z";
-                #binding-cells = <0>;
-                bindings = <&kp Z>, <&kp F>;
-                mods = <(MOD_RCTL|MOD_RALT|MOD_RGUI)>;
-                keep-mods = <(MOD_RCTL|MOD_RALT|MOD_RGUI)>;
-            };
-            //  ,/? >> P
-            dikqmark: diktor_qmark {
-                compatible = "zmk,behavior-mod-morph";
-                label = "DIKTOR_COL_MODS_FOR_QMARK";
-                #binding-cells = <0>;
-                bindings = <&kp QMARK>, <&kp P>;
-                mods = <(MOD_RCTL|MOD_RALT|MOD_RGUI)>;
-                keep-mods = <(MOD_RCTL|MOD_RALT|MOD_RGUI)>;
-            };
-            dcomma: diktor_comma {
-                compatible = "zmk,behavior-mod-morph";
-                label = "DIKTOR_COMMA_QUESTION_MARK";
-                #binding-cells = <0>;
-                bindings = <&dikqmark>, <&kp AMPS>;
-                mods = <(MOD_RSFT)>;
-            };
-            //  ./! >> B
-            dikslash: diktor_slash {
-                compatible = "zmk,behavior-mod-morph";
-                label = "DIKTOR_COL_MODS_FOR_SLASH";
-                #binding-cells = <0>;
-                bindings = <&kp SLASH>, <&kp B>;
-                mods = <(MOD_RCTL|MOD_RALT|MOD_RGUI)>;
-                keep-mods = <(MOD_RCTL|MOD_RALT|MOD_RGUI)>;
-            };
-            ddot: diktor_dot {
-                compatible = "zmk,behavior-mod-morph";
-                label = "DIKTOR_DOT_EXCLAMATION_MARK";
-                #binding-cells = <0>;
-                bindings = <&dikslash>, <&kp EXCL>;
-                mods = <(MOD_RSFT)>;
-            };
-            //  З >> J
-            dikp: diktor_p {
-                compatible = "zmk,behavior-mod-morph";
-                label = "DIKTOR_COL_MODS_FOR_P";
-                #binding-cells = <0>;
-                bindings = <&kp P>, <&kp J>;
-                mods = <(MOD_LCTL|MOD_LALT|MOD_LGUI)>;
-                keep-mods = <(MOD_LCTL|MOD_LALT|MOD_LGUI)>;
-            };
-            //  В >> L
-            dikd: diktor_d {
-                compatible = "zmk,behavior-mod-morph";
-                label = "DIKTOR_COL_MODS_FOR_D";
-                #binding-cells = <0>;
-                bindings = <&kp D>, <&kp L>;
-                mods = <(MOD_LCTL|MOD_LALT|MOD_LGUI)>;
-                keep-mods = <(MOD_LCTL|MOD_LALT|MOD_LGUI)>;
-            };
-            //  К >> U
-            dikr: diktor_r {
-                compatible = "zmk,behavior-mod-morph";
-                label = "DIKTOR_COL_MODS_FOR_R";
-                #binding-cells = <0>;
-                bindings = <&kp R>, <&kp U>;
-                mods = <(MOD_LCTL|MOD_LALT|MOD_LGUI)>;
-                keep-mods = <(MOD_LCTL|MOD_LALT|MOD_LGUI)>;
-            };
-            //  Д >> Y
-            dikl: diktor_l {
-                compatible = "zmk,behavior-mod-morph";
-                label = "DIKTOR_COL_MODS_FOR_L";
-                #binding-cells = <0>;
-                bindings = <&kp L>, <&kp Y>;
-                mods = <(MOD_LCTL|MOD_LALT|MOD_LGUI)>;
-                keep-mods = <(MOD_LCTL|MOD_LALT|MOD_LGUI)>;
-            };
-            //  Ь/Ъ
-            dbsoft: diktor_big_soft {
-                compatible = "zmk,behavior-mod-morph";
-                label = "DIKTOR_BIG_SOFT_HARD_SIGN";
-                #binding-cells = <0>;
-                bindings = <&kp RS(M)>, <&kp RBRC>;
-                mods = <(MOD_RSFT)>;
-            };
-            //  У >> A
-            dike: diktor_e {
-                compatible = "zmk,behavior-mod-morph";
-                label = "DIKTOR_COL_MODS_FOR_E";
-                #binding-cells = <0>;
-                bindings = <&kp E>, <&kp A>;
-                mods = <(MOD_RCTL|MOD_RALT|MOD_RGUI)>;
-                keep-mods = <(MOD_RCTL|MOD_RALT|MOD_RGUI)>;
-            };
-            mtde: mod_tap_dike {
-                compatible = "zmk,behavior-hold-tap";
-                label = "MOD_TAP_DIKTOR_E";
-                flavor = "balanced";
-                hold-trigger-key-positions = <RIGHT_HAND_KEYS RIGHT_THUMB_KEYS>;
-                hold-trigger-on-release; // for combining HRMs
-                tapping-term-ms = <U_TAPPING_TERM>;
-                quick-tap-ms = <U_QUICK_TAP>;
-                require-prior-idle-ms = <U_STREAK_DECAY>;
-                #binding-cells = <2>;
-                bindings = <&kp>, <&dike>;
-            };
-            //  И >> R
-            dikb: diktor_b {
-                compatible = "zmk,behavior-mod-morph";
-                label = "DIKTOR_COL_MODS_FOR_B";
-                #binding-cells = <0>;
-                bindings = <&kp B>, <&kp R>;
-                mods = <(MOD_RCTL|MOD_RALT|MOD_RGUI)>;
-                keep-mods = <(MOD_RCTL|MOD_RALT|MOD_RGUI)>;
-            };
-            mtdb: mod_tap_dikb {
-                compatible = "zmk,behavior-hold-tap";
-                label = "MOD_TAP_DIKTOR_B";
-                flavor = "balanced";
-                hold-trigger-key-positions = <RIGHT_HAND_KEYS RIGHT_THUMB_KEYS>;
-                hold-trigger-on-release; // for combining HRMs
-                tapping-term-ms = <U_TAPPING_TERM>;
-                quick-tap-ms = <U_QUICK_TAP>;
-                require-prior-idle-ms = <U_STREAK_DECAY>;
-                #binding-cells = <2>;
-                bindings = <&kp>, <&dikb>;
-            };
-            //  Е >> S
-            dikt: diktor_t {
-                compatible = "zmk,behavior-mod-morph";
-                label = "DIKTOR_COL_MODS_FOR_T";
-                #binding-cells = <0>;
-                bindings = <&kp T>, <&kp S>;
-                mods = <(MOD_RCTL|MOD_RALT|MOD_RGUI)>;
-                keep-mods = <(MOD_RCTL|MOD_RALT|MOD_RGUI)>;
-            };
-            mtdt: mod_tap_dikt {
-                compatible = "zmk,behavior-hold-tap";
-                label = "MOD_TAP_DIKTOR_T";
-                flavor = "balanced";
-                hold-trigger-key-positions = <RIGHT_HAND_KEYS RIGHT_THUMB_KEYS>;
-                hold-trigger-on-release; // for combining HRMs
-                tapping-term-ms = <U_TAPPING_TERM>;
-                quick-tap-ms = <U_QUICK_TAP>;
-                #binding-cells = <2>;
-                bindings = <&kp>, <&dikt>;
-            };
-            //  О >> T
-            dikj: diktor_j {
-                compatible = "zmk,behavior-mod-morph";
-                label = "DIKTOR_COL_MODS_FOR_J";
-                #binding-cells = <0>;
-                bindings = <&kp J>, <&kp T>;
-                mods = <(MOD_RCTL|MOD_RALT|MOD_RGUI)>;
-                keep-mods = <(MOD_RCTL|MOD_RALT|MOD_RGUI)>;
-            };
-            mtdj: mod_tap_dikj {
-                compatible = "zmk,behavior-hold-tap";
-                label = "MOD_TAP_DIKTOR_J";
-                flavor = "balanced";
-                hold-trigger-key-positions = <RIGHT_HAND_KEYS RIGHT_THUMB_KEYS>;
-                hold-trigger-on-release; // for combining HRMs
-                tapping-term-ms = <U_TAPPING_TERM>;
-                quick-tap-ms = <U_QUICK_TAP>;
-                require-prior-idle-ms = <U_STREAK_DECAY>;
-                #binding-cells = <2>;
-                bindings = <&kp>, <&dikj>;
-            };
-            //  А >> G
-            dikf: diktor_f {
-                compatible = "zmk,behavior-mod-morph";
-                label = "DIKTOR_COL_MODS_FOR_F";
-                #binding-cells = <0>;
-                bindings = <&kp F>, <&kp G>;
-                mods = <(MOD_RCTL|MOD_RALT|MOD_RGUI)>;
-                keep-mods = <(MOD_RCTL|MOD_RALT|MOD_RGUI)>;
-            };
-            //  Л >> M
-            dikk: diktor_k {
-                compatible = "zmk,behavior-mod-morph";
-                label = "DIKTOR_COL_MODS_FOR_K";
-                #binding-cells = <0>;
-                bindings = <&kp K>, <&kp M>;
-                mods = <(MOD_LCTL|MOD_LALT|MOD_LGUI)>;
-                keep-mods = <(MOD_LCTL|MOD_LALT|MOD_LGUI)>;
-            };
-            //  Н >> N
-            diky: diktor_y {
-                compatible = "zmk,behavior-mod-morph";
-                label = "DIKTOR_COL_MODS_FOR_Y";
-                #binding-cells = <0>;
-                bindings = <&kp Y>, <&kp N>;
-                mods = <(MOD_LCTL|MOD_LALT|MOD_LGUI)>;
-                keep-mods = <(MOD_LCTL|MOD_LALT|MOD_LGUI)>;
-            };
-            mtdy: mod_tap_diky {
-                compatible = "zmk,behavior-hold-tap";
-                label = "MOD_TAP_DIKTOR_Y";
-                flavor = "balanced";
-                hold-trigger-key-positions = <LEFT_HAND_KEYS LEFT_THUMB_KEYS>;
-                hold-trigger-on-release; // for combining HRMs
-                tapping-term-ms = <U_TAPPING_TERM>;
-                quick-tap-ms = <U_QUICK_TAP>;
-                require-prior-idle-ms = <U_STREAK_DECAY>;
-                #binding-cells = <2>;
-                bindings = <&kp>, <&diky>;
-            };
-            //  Т >> E
-            dikn: diktor_n {
-                compatible = "zmk,behavior-mod-morph";
-                label = "DIKTOR_COL_MODS_FOR_N";
-                #binding-cells = <0>;
-                bindings = <&kp N>, <&kp E>;
-                mods = <(MOD_LCTL|MOD_LALT|MOD_LGUI)>;
-                keep-mods = <(MOD_LCTL|MOD_LALT|MOD_LGUI)>;
-            };
-            mtdn: mod_tap_dikn {
-                compatible = "zmk,behavior-hold-tap";
-                label = "MOD_TAP_DIKTOR_N";
-                flavor = "balanced";
-                hold-trigger-key-positions = <LEFT_HAND_KEYS LEFT_THUMB_KEYS>;
-                hold-trigger-on-release; // for combining HRMs
-                tapping-term-ms = <U_TAPPING_TERM>;
-                quick-tap-ms = <U_QUICK_TAP>;
-                #binding-cells = <2>;
-                bindings = <&kp>, <&dikn>;
-            };
-            //  С >> I
-            dikc: diktor_c {
-                compatible = "zmk,behavior-mod-morph";
-                label = "DIKTOR_COL_MODS_FOR_C";
-                #binding-cells = <0>;
-                bindings = <&kp C>, <&kp I>;
-                mods = <(MOD_LCTL|MOD_LALT|MOD_LGUI)>;
-                keep-mods = <(MOD_LCTL|MOD_LALT|MOD_LGUI)>;
-            };
-            mtdc: mod_tap_dikc {
-                compatible = "zmk,behavior-hold-tap";
-                label = "MOD_TAP_DIKTOR_C";
-                flavor = "balanced";
-                hold-trigger-key-positions = <LEFT_HAND_KEYS LEFT_THUMB_KEYS>;
-                hold-trigger-on-release; // for combining HRMs
-                tapping-term-ms = <U_TAPPING_TERM>;
-                quick-tap-ms = <U_QUICK_TAP>;
-                require-prior-idle-ms = <U_STREAK_DECAY>;
-                #binding-cells = <2>;
-                bindings = <&kp>, <&dikc>;
-            };
-            //  Р >> O
-            dikh: diktor_h {
-                compatible = "zmk,behavior-mod-morph";
-                label = "DIKTOR_COL_MODS_FOR_H";
-                #binding-cells = <0>;
-                bindings = <&kp H>, <&kp O>;
-                mods = <(MOD_LCTL|MOD_LALT|MOD_LGUI)>;
-                keep-mods = <(MOD_LCTL|MOD_LALT|MOD_LGUI)>;
-            };
-            mtdh: mod_tap_dikh {
-                compatible = "zmk,behavior-hold-tap";
-                label = "MOD_TAP_DIKTOR_H";
-                flavor = "balanced";
-                hold-trigger-key-positions = <LEFT_HAND_KEYS LEFT_THUMB_KEYS>;
-                hold-trigger-on-release; // for combining HRMs
-                tapping-term-ms = <U_TAPPING_TERM>;
-                quick-tap-ms = <U_QUICK_TAP>;
-                require-prior-idle-ms = <U_STREAK_DECAY>;
-                #binding-cells = <2>;
-                bindings = <&kp>, <&dikh>;
-            };
-            //  Ф >> Z
-            dika: diktor_a {
-                compatible = "zmk,behavior-mod-morph";
-                label = "DIKTOR_COL_MODS_FOR_A";
-                #binding-cells = <0>;
-                bindings = <&kp A>, <&kp Z>;
-                mods = <(MOD_RCTL|MOD_RALT|MOD_RGUI)>;
-                keep-mods = <(MOD_RCTL|MOD_RALT|MOD_RGUI)>;
-            };
-            //  Э >> X
-            dikapos: diktor_apos {
-                compatible = "zmk,behavior-mod-morph";
-                label = "DIKTOR_COL_MODS_FOR_APOS";
-                #binding-cells = <0>;
-                bindings = <&kp APOS>, <&kp X>;
-                mods = <(MOD_RCTL|MOD_RALT|MOD_RGUI)>;
-                keep-mods = <(MOD_RCTL|MOD_RALT|MOD_RGUI)>;
-            };
-            //  Х >> C
-            diklbkt: diktor_lbkt {
-                compatible = "zmk,behavior-mod-morph";
-                label = "DIKTOR_COL_MODS_FOR_LBKT";
-                #binding-cells = <0>;
-                bindings = <&kp LBKT>, <&kp C>;
-                mods = <(MOD_RCTL|MOD_RALT|MOD_RGUI)>;
-                keep-mods = <(MOD_RCTL|MOD_RALT|MOD_RGUI)>;
-            };
-            //  Ы >> D
-            diks: diktor_s {
-                compatible = "zmk,behavior-mod-morph";
-                label = "DIKTOR_COL_MODS_FOR_S";
-                #binding-cells = <0>;
-                bindings = <&kp S>, <&kp D>;
-                mods = <(MOD_RCTL|MOD_RALT|MOD_RGUI)>;
-                keep-mods = <(MOD_RCTL|MOD_RALT|MOD_RGUI)>;
-            };
-            //  Ю >> V
-            dikdot: diktor_dot_oo {
-                compatible = "zmk,behavior-mod-morph";
-                label = "DIKTOR_COL_MODS_FOR_DOT";
-                #binding-cells = <0>;
-                bindings = <&kp DOT>, <&kp V>;
-                mods = <(MOD_RCTL|MOD_RALT|MOD_RGUI)>;
-                keep-mods = <(MOD_RCTL|MOD_RALT|MOD_RGUI)>;
-            };
-            //  Б >> K
-            dikcomma: diktor_comma_oo {
-                compatible = "zmk,behavior-mod-morph";
-                label = "DIKTOR_COL_MODS_FOR_COMMA";
-                #binding-cells = <0>;
-                bindings = <&kp COMMA>, <&kp K>;
-                mods = <(MOD_LCTL|MOD_LALT|MOD_LGUI)>;
-                keep-mods = <(MOD_LCTL|MOD_LALT|MOD_LGUI)>;
-            };
-            //  М >> H
-            dikv: diktor_v {
-                compatible = "zmk,behavior-mod-morph";
-                label = "DIKTOR_COL_MODS_FOR_V";
-                #binding-cells = <0>;
-                bindings = <&kp V>, <&kp H>;
-                mods = <(MOD_LCTL|MOD_LALT|MOD_LGUI)>;
-                keep-mods = <(MOD_LCTL|MOD_LALT|MOD_LGUI)>;
-            };
-            
-            // Russian Number layer
-            rnumabr: russian_numeric_angle_brackets {
-                compatible = "zmk,behavior-mod-morph";
-                label = "RUS_NUMERIC_ANGLE_BRACKETS";
-                #binding-cells = <0>;
-                bindings = <&engkp LESS_THAN>, <&engkp GREATER_THAN>;
-                mods = <(MOD_RSFT)>;
-            };
-            rnumlbr: russian_numeric_left_brace {
-                compatible = "zmk,behavior-mod-morph";
-                label = "RUS_NUMERIC_LEFT_BRACE";
-                #binding-cells = <0>;
-                bindings = <&engkp LEFT_BRACKET>, <&engkp LEFT_BRACE>;
-                mods = <(MOD_RSFT)>;
-            };
-            rnum7: russian_numeric_7 {
-                compatible = "zmk,behavior-mod-morph";
-                label = "RUS_NUMERIC_7";
-                #binding-cells = <0>;
-                bindings = <&kp N7>, <&kp LPAR>;
-                mods = <(MOD_RSFT)>;
-            };
-            rnum9: russian_numeric_9 {
-                compatible = "zmk,behavior-mod-morph";
-                label = "RUS_NUMERIC_9";
-                #binding-cells = <0>;
-                bindings = <&kp N9>, <&kp RPAR>;
-                mods = <(MOD_RSFT)>;
-            };
-            rnumrbr: russian_numeric_right_brace {
-                compatible = "zmk,behavior-mod-morph";
-                label = "RUS_NUMERIC_RIGHT_BRACE";
-                #binding-cells = <0>;
-                bindings = <&engkp RIGHT_BRACKET>, <&engkp RIGHT_BRACE>;
-                mods = <(MOD_RSFT)>;
-            };
-            rnumat: russian_numeric_at {
-                compatible = "zmk,behavior-mod-morph";
-                label = "RUS_NUMERIC_AT_SIGN";
-                #binding-cells = <0>;
-                bindings = <&engkp AT_SIGN>, <&engkp HASH>;
-                mods = <(MOD_RSFT)>;
-            };
-            rnumscol: russian_numeric_semicolon {
-                compatible = "zmk,behavior-mod-morph";
-                label = "RUS_NUMERIC_SEMICOLON";
-                #binding-cells = <0>;
-                bindings = <&kp DOLLAR>, <&kp CARET>;
-                mods = <(MOD_RSFT)>;
-            };
-            rnum4: russian_numeric_4 {
-                compatible = "zmk,behavior-mod-morph";
-                label = "RUS_NUMERIC_4";
-                #binding-cells = <0>;
-                bindings = <&kp N4>, <&engkp DOLLAR>;
-                mods = <(MOD_RSFT)>;
-            };
-            rnum6: russian_numeric_6 {
-                compatible = "zmk,behavior-mod-morph";
-                label = "RUS_NUMERIC_6";
-                #binding-cells = <0>;
-                bindings = <&kp N6>, <&engkp CARET>;
-                mods = <(MOD_RSFT)>;
-            };
-            rnumgrv: russian_numeric_grave {
-                compatible = "zmk,behavior-mod-morph";
-                label = "RUS_NUMERIC_GRAVE";
-                #binding-cells = <0>;
-                bindings = <&engkp GRAVE>, <&engkp TILDE>;
-                mods = <(MOD_RSFT)>;
-            };
-            rnum1: russian_numeric_1 {
-                compatible = "zmk,behavior-mod-morph";
-                label = "RUS_NUMERIC_1";
-                #binding-cells = <0>;
-                bindings = <&kp N1>, <&engkp SINGLE_QUOTE>;
-                mods = <(MOD_RSFT)>;
-            };
-            //  ./,
-            rnumdorc: russian_numeric_dot_or_comma {
-                compatible = "zmk,behavior-mod-morph";
-                label = "RUS_NUMERIC_DOT_OR_COMMA";
-                #binding-cells = <0>;
-                bindings = <&kp SLASH>, <&kp QMARK>;
-                mods = <(MOD_RSFT)>;
-            };
-            rnum0: russian_numeric_0 {
-                compatible = "zmk,behavior-mod-morph";
-                label = "RUS_NUMERIC_0";
-                #binding-cells = <0>;
-                bindings = <&kp N0>, <&engkp AMPERSAND>;
-                mods = <(MOD_RSFT)>;
-            };
-            
-            // Mouse 
-            //  acceleration
-            fmmv: fast_mouse_move {
-                compatible = "zmk,behavior-input-two-axis";
-                #binding-cells = <1>;
-                x-input-code = <INPUT_REL_X>;
-                y-input-code = <INPUT_REL_Y>;
-                acceleration-exponent = <1>;  // 1
-                time-to-max-speed-ms = <300>; // 300
-                delay-ms = <0>;
-                trigger-period-ms = <8>;      // 16
-            };
-            fmsc: fast_mouse_scroll {
-                compatible = "zmk,behavior-input-two-axis";
-                #binding-cells = <1>;
-                x-input-code = <INPUT_REL_HWHEEL>;
-                y-input-code = <INPUT_REL_WHEEL>;
-                acceleration-exponent = <1>;  // 0
-                time-to-max-speed-ms = <40>;  // 300
-                delay-ms = <0>;
-                trigger-period-ms = <8>;      // 16
-            };
-            //  deceleration
-            smmv: slow_mouse_move {
-                compatible = "zmk,behavior-input-two-axis";
-                #binding-cells = <1>;
-                x-input-code = <INPUT_REL_X>;
-                y-input-code = <INPUT_REL_Y>;
-                acceleration-exponent = <1>;  // 1
-                time-to-max-speed-ms = <300>; // 300
-                delay-ms = <0>;
-                trigger-period-ms = <8>;      // 16
-            };
-        };
-        
-        // Mouse 
-        //  acceleration
-        fmmv_input_listener: fmmv_input_listener {
-            compatible = "zmk,input-listener";
-            device = <&fmmv>;
-            scale-multiplier = <2>;
-            scale-divisor = <1>;
-        };
-        fmsc_input_listener: fmsc_input_listener {
-            compatible = "zmk,input-listener";
-            device = <&fmsc>;
-            scale-multiplier = <2>;
-            scale-divisor = <1>;
-        };
-        //  deceleration
-        smmv_input_listener: smmv_input_listener {
-            compatible = "zmk,input-listener";
-            device = <&smmv>;
-            scale-multiplier = <1>;
-            scale-divisor = <2>;
         };
 
         macros {
@@ -767,32 +244,46 @@
         combos {
             compatible = "zmk,combos";
             combo_force_rus {
-                timeout-ms = <50>;
+                timeout-ms = <U_COMBO_TIMEOUT>;
                 key-positions = <5 6>;
                 layers = <RUS>;
                 bindings = <&kp U_TO_RUS_SCUT>;
-                require-prior-idle-ms = <300>;
+                require-prior-idle-ms = <U_COMBO_STREAK_DECAY>;
             };
             combo_force_eng {
-                timeout-ms = <50>;
+                timeout-ms = <U_COMBO_TIMEOUT>;
                 key-positions = <5 6>;
-                layers = <ENG>;
+                layers = <ENG EPP>;
                 bindings = <&kp U_TO_ENG_SCUT>;
-                require-prior-idle-ms = <300>;
+                require-prior-idle-ms = <U_COMBO_STREAK_DECAY>;
             };
             combo_switch_to_rus {
-                timeout-ms = <50>;
+                timeout-ms = <U_COMBO_TIMEOUT>;
                 key-positions = <38 39>;
-                layers = <ENG>;
+                layers = <ENG EPP>;
                 bindings = <&to_russian>;
-                require-prior-idle-ms = <300>;
+                require-prior-idle-ms = <U_COMBO_STREAK_DECAY>;
             };
             combo_switch_to_eng {
-                timeout-ms = <50>;
+                timeout-ms = <U_COMBO_TIMEOUT>;
                 key-positions = <38 39>;
                 layers = <RUS>;
                 bindings = <&to_english>;
-                require-prior-idle-ms = <300>;
+                require-prior-idle-ms = <U_COMBO_STREAK_DECAY>;
+            };
+            combo_key_repeat {
+                timeout-ms = <U_COMBO_TIMEOUT>;
+                key-positions = <17 18>;
+                layers = <ENG EPP RUS>;
+                bindings = <&key_repeat>;
+                require-prior-idle-ms = <U_COMBO_STREAK_DECAY>;
+            };
+            combo_caps_word {
+                timeout-ms = <U_COMBO_TIMEOUT>;
+                key-positions = <16 19>;
+                layers = <ENG EPP RUS>;
+                bindings = <&caps_word>;
+                require-prior-idle-ms = <U_COMBO_STREAK_DECAY>;
             };
         };
 
@@ -801,76 +292,91 @@
 
                 english_layer {
 // ╭───────┬───────┬───────┬───────┬───────┬───────╮     ╭───────┬───────┬───────┬───────┬───────┬───────╮
-// |   [   |   Q   |   W   |   F   |   P   |   B   |     |   J   |   L   |   U   |   Y   |   "   |   ]   |
-// |  (/;  |   A   |   R   |   S   |   T   |   G   |     |   M   |   N   |   E   |   I   |   O   |  )/:  |
-// |   `   |   Z   |   X   |   C   |   D   |   V   |     |   K   |   H   |   ,   |   .   |   /   |   \   |
+// | AMNW  |   Q   |   W   |   F   |   P   |   B   |     |   J   |   L   |   U   |   Y   |   "   |  AMNE |
+// | LEADR |   A   |   R   |   S   |   T   |   G   |     |   M   |   N   |   E   |   I   |   O   |   AME |
+// | AMSW  |   Z   |   X   |   C   |   D   |   V   |     |   K   |   H   |   ,   |   .   |   /   |  AMSE |
 // ╰───────┴───────┴───────┼───────┼───────┼───────┤     ├───────┼───────┼───────┼───────────────────────╯
-//                         |  MED  |  BKSP |  RET  |     |  TAB  | SPACE |  FUN  |
+//                         |  DEL  |  BKSP |  RET  |     |  TAB  | SPACE |  ESC  |
 //                         ╰───────┴───────┴───────╯     ╰───────┴───────┴───────╯
                         bindings = <
-          &kp LBKT  &kp Q         &kp W         &kp F         &kp P             &kp B         &kp J         &kp L            &kp U         &kp Y        &kp SQT       &kp RBKT       
-          &collp    &lmt LGUI A   &lmt LALT R   &lsht LSHFT S &lmt LCTRL T      &kp G         &kp M         &rmt RCTRL N     &rsht RSHFT E &rmt RALT I  &rmt RGUI O   &colrp
-          &kp GRAVE &kp Z         &kp X         &kp C         &kp D             &kp V         &kp K         &kp H            &kp COMMA     &kp DOT      &kp FSLH      &kp BSLH
+          &amennw  &kp Q         &kp W         &kp F         &kp P             &kp B         &kp J         &kp L            &kp U         &kp Y        &kp SQT       &amenne       
+          &none     &lmt LGUI A   &lmt LALT R   &lsht LSHFT S &lmt LCTRL T      &kp G         &kp M         &rmt RCTRL N     &rsht RSHFT E &rmt RALT I  &rmt RGUI O   &amene
+          &amensw  &kp Z         &kp X         &kp C         &kp D             &kp V         &kp K         &kp H            &kp COMMA     &kp DOT      &kp FSLH      &amense
                                             &lt MED DEL   &lt ENN BSPC   &mlt MOS RET   &lt SYE TAB   &lt NUE SPACE  &lt FUN ESC
+                        >;
+                };
+                english_cpp_overlay {
+// ╭───────┬───────┬───────┬───────┬───────┬───────╮     ╭───────┬───────┬───────┬───────┬───────┬───────╮
+// | AMNW  |   Q   |   W   |   F   |   P   |   B   |     |   J   |   L   |   U   |   Y   |   "   |  AMNE |
+// | LEADR |   A   |   R   |   S   |   T   |   G   |     |   M   |   N   |   E   |   I   |   O   |   AME |
+// | AMSW  |   Z   |   X   |   C   |   D   |   V   |     |   K   |   H   |   ,   |   .   |   /   |  AMSE |
+// ╰───────┴───────┴───────┼───────┼───────┼───────┤     ├───────┼───────┼───────┼───────────────────────╯
+//                         |  DEL  |  BKSP |  RET  |     |  TAB  | SPACE |  ESC  |
+//                         ╰───────┴───────┴───────╯     ╰───────┴───────┴───────╯
+                        bindings = <
+          &amcppnw  &trans        &trans        &trans        &trans            &trans         &trans        &trans           &trans        &trans       &trans        &amcppne       
+          &trans    &trans        &trans        &trans        &trans            &trans         &trans        &trans           &trans        &trans       &trans        &amcppe
+          &amcppsw  &trans        &trans        &trans        &trans            &trans         &trans        &trans           &trans        &trans       &trans        &amcppse
+                                            &trans      &trans     &trans    &trans    &trans     &trans
                         >;
                 };
                 english_nav_layer {
 // ╭───────┬───────┬───────┬───────┬───────┬───────╮     ╭───────┬───────┬───────┬───────┬───────┬───────╮
-// |       |  ESC  | CAPS  |  RUS  |       |       |     | PG_UP | HOME  |  UP   |  END  |  INS  |       |
-// |       |  LGUI | LALT  | LSHFT | LCTRL |  BTN  |     | PG_DN | LEFT  | DOWN  | RIGHT |  DEL  |       |
-// |       |       |       |       |       |       |     |       | CWORD | MENU  |       |       |       |
+// |       |  ESC  | CAPS  |  RUS  |       |       |     | PG_UP | HOME  |  UP   |  END  |  INS  |  AMNE |
+// |       |  LGUI | LALT  | LSHFT | LCTRL |  BTN  |     | PG_DN | LEFT  | DOWN  | RIGHT |  DEL  |   AME |
+// |       |       |       |       |       |       |     |       | CWORD | MENU  |       |       |  AMSE |
 // ╰───────┴───────┴───────┼───────┼───────┼───────┤     ├───────┼───────┼───────┼───────────────────────╯
 //                         |       |  (0)  |       |     |  TAB  | SPACE |       |
 //                         ╰───────┴───────┴───────╯     ╰───────┴───────┴───────╯
                         bindings = <
-          &none     &kp ESC       &kp CAPS      &to_russian   &tog RUS          &none         &kp PG_UP     &kp HOME         &kp UP        &kp END      &kp INS       &none
-          &none     &kp LGUI      &kp LALT      &kp LSHFT     &kp LCTRL         &tog BTN      &kp PG_DN     &kp LEFT         &kp DOWN      &kp RIGHT    &kp DEL       &none
-          &none     &none         &none         &none         &none             &none         &none         &caps_word       &kp K_CMENU   &none        &none         &none
+          &none     &kp ESC       &kp CAPS      &to_russian   &tog RUS          &none         &kp PG_UP     &kp HOME         &kp UP        &kp END      &kp INS       &amennavne
+          &none     &kp LGUI      &kp LALT      &kp LSHFT     &kp LCTRL         &tog BTN      &kp PG_DN     &kp LEFT         &kp DOWN      &kp RIGHT    &kp DEL       &amennave
+          &none     &none         &none         &none         &none             &none         &none         &caps_word       &kp K_CMENU   &none        &none         &amennavse
                                             &none     &none          &none         &kp TAB       &kp SPACE       &none
                         >;
                 };
                 english_number_layer {
 // ╭───────┬───────┬───────┬───────┬───────┬───────╮     ╭───────┬───────┬───────┬───────┬───────┬───────╮
-// |  </>  |   [   |  7/(  |   8   |  9/)  |   ]   |     |       |       | SPACE |       |  ESC  |       |
-// |       |   ;   |   4   |   5   |   6   |   =   |     |  BKSP | RCTRL | RSHFT |  RALT |  RGUI |       |
-// |       |   `   |   1   |   2   |   3   |   \   |     |       |       |       |       |       |       |
+// | AMNW  |   [   |  7/(  |   8   |  9/)  |   ]   |     |       |       | SPACE |       |  ESC  |       |
+// | AMW   |   ;   |   4   |   5   |   6   |   =   |     |  BKSP | RCTRL | RSHFT |  RALT |  RGUI |       |
+// | AMSW  |   `   |   1   |   2   |   3   |   \   |     |       |       |       |       |       |       |
 // ╰───────┴───────┴───────┼───────┼───────┼───────┤     ├───────┼───────┼───────┼───────────────────────╯
 //                         |  ./,  |  0/&  |   -   |     |       |  (0)  |       |
 //                         ╰───────┴───────┴───────╯     ╰───────┴───────┴───────╯
                         bindings = <
-          &numabr   &kp LBKT      &num7         &kp N8        &num9             &kp RBKT      &none         &none             &kp SPACE     &none      &kp ESC        &none           
-          &none     &kp SEMI      &kp N4        &kp N5        &kp N6            &kp EQUAL     &kp BSPC      &kp RCTRL         &kp RSHFT     &kp RALT   &kp RGUI       &none
-          &none     &kp GRAVE     &kp N1        &kp N2        &kp N3            &kp BSLH      &none         &none             &none         &none      &none          &none
+          &amennumnw   &kp LBKT      &num7         &kp N8        &num9             &kp RBKT      &none         &none             &kp SPACE     &none      &kp ESC        &none           
+          &amennumw    &kp SEMI      &kp N4        &kp N5        &kp N6            &kp EQUAL     &kp BSPC      &kp RCTRL         &kp RSHFT     &kp RALT   &kp RGUI       &none
+          &amennumsw   &kp GRAVE     &kp N1        &kp N2        &kp N3            &kp BSLH      &none         &none             &none         &none      &none          &none
                                             &numdorc  &num0           &kp MINUS    &trans        &trans         &none
                         >;
                 };
                 english_symbol_layer {
 // ╭───────┬───────┬───────┬───────┬───────┬───────╮     ╭───────┬───────┬───────┬───────┬───────┬───────╮
-// |   >   |   {   |   (   |   *   |   )   |   }   |     |       |       | SPACE |       |  ESC  |       |
-// |       |   :   |   $   |   %   |   ^   |   +   |     |  BKSP | RCTRL | RSHFT |  RALT |  RGUI |       |
-// |       |   ~   |   !   |   @   |   #   |   |   |     |       |       |       |       |       |       |
+// | AMNW  |   {   |   (   |   *   |   )   |   }   |     |       |       | SPACE |       |  ESC  |       |
+// | AMW   |   :   |   $   |   %   |   ^   |   +   |     |  BKSP | RCTRL | RSHFT |  RALT |  RGUI |       |
+// | AMSW  |   ~   |   !   |   @   |   #   |   |   |     |       |       |       |       |       |       |
 // ╰───────┴───────┴───────┼───────┼───────┼───────┤     ├───────┼───────┼───────┼───────────────────────╯
 //                         |   ,   |   &   |   _   |     |  (0)  |       |       |
 //                         ╰───────┴───────┴───────╯     ╰───────┴───────┴───────╯
                         bindings = <
-          &kp GT    &kp LBRC      &kp LPAR      &kp ASTERISK  &kp RPAR          &kp RBRC      &none         &none             &kp SPACE     &none      &kp ESC        &none           
-          &none     &kp COLON     &kp DOLLAR    &kp PERCENT   &kp CARET         &kp PLUS      &kp BSPC      &kp RCTRL         &kp RSHFT     &kp RALT   &kp RGUI       &none
-          &none     &kp TILDE     &kp EXCL      &kp AT_SIGN   &kp HASH          &kp PIPE      &none         &none             &none         &none      &none          &none
+          &amensymnw  &kp LBRC      &kp LPAR      &kp ASTERISK  &kp RPAR          &kp RBRC      &none         &none             &kp SPACE     &none      &kp ESC        &none           
+          &amensymw   &kp COLON     &kp DOLLAR    &kp PERCENT   &kp CARET         &kp PLUS      &kp BSPC      &kp RCTRL         &kp RSHFT     &kp RALT   &kp RGUI       &none
+          &amensymsw  &kp TILDE     &kp EXCL      &kp AT_SIGN   &kp HASH          &kp PIPE      &none         &none             &none         &none      &none          &none
                                             &kp COMMA  &kp AMPS     &kp UNDER    &trans        &trans          &trans
                         >;
                 };
                 russian_layer {
 // ╭───────┬───────┬───────┬───────┬───────┬───────╮     ╭───────┬───────┬───────┬───────┬───────┬───────╮
 // |   Ё   |   Ц   |  ь/ъ  |   Я   |  ,/?  |  ./!  |     |   З   |   В   |   К   |   Д   |   Ч   |   Ш   |
-// |  Ь/Ъ  |   У   |   И   |   Е   |   О   |   А   |     |   Л   |   Н   |   Т   |   С   |   Р   |   Й   |
-// |   \   |   Ф   |   Э   |   Х   |   Ы   |   Ю   |     |   Б   |   М   |   П   |   Г   |   Ж   |   Щ   |
+// | LEADR |   У   |   И   |   Е   |   О   |   А   |     |   Л   |   Н   |   Т   |   С   |   Р   |   Й   |
+// |  Ь/Ъ  |   Ф   |   Э   |   Х   |   Ы   |   Ю   |     |   Б   |   М   |   П   |   Г   |   Ж   |   Щ   |
 // ╰───────┴───────┴───────┼───────┼───────┼───────┤     ├───────┼───────┼───────┼───────────────────────╯
-//                         |  MED  |  BKSP |  RET  |     |  TAB  | SPACE |  FUN  |
+//                         |  DEL  |  BKSP |  RET  |     |  TAB  | SPACE |  ESC  |
 //                         ╰───────┴───────┴───────╯     ╰───────┴───────┴───────╯
                         bindings = <
           &kp GRAVE &dikw         &dsoft        &dikz         &dcomma           &ddot         &dikp         &dikd            &dikr         &dikl        &kp X         &kp I       
-          &dbsoft   &mtde LGUI E  &mtdb LALT B  &mtdt LSHFT T &mtdj LCTRL J     &dikf         &dikk         &mtdy RCTRL Y    &mtdn RSHFT N &mtdc RALT C &mtdh RGUI H  &kp Q
-          &kp BSLH  &dika         &dikapos      &diklbkt      &diks             &dikdot       &dikcomma     &dikv            &kp G         &kp U        &kp SEMI      &kp O
+          &none     &mtde LGUI E  &mtdb LALT B  &mtdt LSHFT T &mtdj LCTRL J     &dikf         &dikk         &mtdy RCTRL Y    &mtdn RSHFT N &mtdc RALT C &mtdh RGUI H  &kp Q
+          &dbsoft   &dika         &dikapos      &diklbkt      &diks             &dikdot       &dikcomma     &dikv            &kp G         &kp U        &kp SEMI      &kp O
                                             &lt MED DEL   &lt RUN BSPC   &mlt MOS RET   &lt SYR TAB   &lt NUR SPACE   &lt FUN ESC
                         >;
                 };
@@ -922,16 +428,16 @@
 
                 function_layer {
 // ╭───────┬───────┬───────┬───────┬───────┬───────╮     ╭───────┬───────┬───────┬───────┬───────┬───────╮
-// |       |  F12  |  F7   |  F8   |  F9   | PSCRN |     |       |       |  FN2  |       |  ESC  |       |
-// |       |  F11  |  F4   |  F5   |  F6   | SLCK  |     |       | RCTRL | RSHFT |  RALT |  RGUI |       |
-// |       |  F10  |  F1   |  F2   |  F3   | PAUSE |     |       |       |       |       |       |       |
+// | AMNW  |  F12  |  F7   |  F8   |  F9   | PSCRN |     |       |       |  FN2  |       |  ESC  |       |
+// | AMW   |  F11  |  F4   |  F5   |  F6   | SLCK  |     |       | RCTRL | RSHFT |  RALT |  RGUI |       |
+// | AMSW  |  F10  |  F1   |  F2   |  F3   | PAUSE |     |       |       |       |       |       |       |
 // ╰───────┴───────┴───────┼───────┼───────┼───────┤     ├───────┼───────┼───────┼───────────────────────╯
 //                         |       |  BKSP |  RET  |     |       |       |  (0)  |
 //                         ╰───────┴───────┴───────╯     ╰───────┴───────┴───────╯
                         bindings = <
-          &kp F15   &kp F12       &kp F7        &kp F8        &kp F9            &kp PSCRN       &none       &none             &mo FN2       &none       &kp ESC        &none   
-          &kp F14   &kp F11       &kp F4        &kp F5        &kp F6            &kp SLCK        &none       &kp RCTRL         &kp RSHFT     &kp RALT    &kp RGUI       &none
-          &kp F13   &kp F10       &kp F1        &kp F2        &kp F3            &kp PAUSE_BREAK &none       &none             &none         &none       &none          &none
+          &amenfunnw  &kp F12       &kp F7        &kp F8        &kp F9            &kp PSCRN       &none       &none             &mo FN2       &none       &kp ESC        &none   
+          &amenfunw   &kp F11       &kp F4        &kp F5        &kp F6            &kp SLCK        &none       &kp RCTRL         &kp RSHFT     &kp RALT    &kp RGUI       &none
+          &amenfunsw  &kp F10       &kp F1        &kp F2        &kp F3            &kp PAUSE_BREAK &none       &none             &none         &none       &none          &none
                                             &kp DEL      &kp BSPC      &kp RET      &trans        &none           &trans
                         >;
                 };
@@ -952,31 +458,31 @@
                 };
                 media_layer {
 // ╭───────┬───────┬───────┬───────┬───────┬───────╮     ╭───────┬───────┬───────┬───────┬───────┬───────╮
-// |       |       |       |       |       |       |     | STOP  |  P/P  | VOL+  |       |       |       |
-// |       |       |       |       |       |       |     |       |   <<  | VOL-  |  >>   | LOCK  |       |
-// |       |       |       |       |       |       |     |       |       | MUTE  |       |       |       |
+// |       |       |       |       |       |       |     | STOP  |  P/P  | VOL+  |       |       |  AMNE |
+// |       |       |       | CMAKE |  CPP  |       |     |       |   <<  | VOL-  |  >>   | LOCK  |   AME |
+// |       |       |       |       |       |       |     |       |       | MUTE  |       |       |  AMSE |
 // ╰───────┴───────┴───────┼───────┼───────┼───────┤     ├───────┼───────┼───────┼───────────────────────╯
 //                         |  (0)  |       |       |     |       | KRPT  |       |
 //                         ╰───────┴───────┴───────╯     ╰───────┴───────┴───────╯
                         bindings = <
-          &none         &none         &none       &none     &none     &none     &kp C_STOP  &kp C_PP    &kp C_VOL_UP   &none       &none         &none
-          &none         &none         &none       &none     &none     &none     &none       &kp C_PREV  &kp C_VOL_DN   &kp C_NEXT  &kp C_AL_LOCK &none
-          &none         &none         &none       &none     &none     &none     &none       &none       &kp C_MUTE     &none       &none         &none
+          &none         &none         &none       &none     &none     &none     &kp C_STOP  &kp C_PP    &kp C_VOL_UP   &none       &none         &amenmedne
+          &none         &none         &none       &none     &tog EPP  &none     &none       &kp C_PREV  &kp C_VOL_DN   &kp C_NEXT  &kp C_AL_LOCK &amenmede
+          &none         &none         &none       &none     &none     &none     &none       &none       &kp C_MUTE     &none       &none         &amenmedse
                                              &trans        &none         &trans         &trans      &key_repeat   &none
                         >;
                 };
                 mouse_layer {
 // ╭───────┬───────┬───────┬───────┬───────┬───────╮     ╭───────┬───────┬───────┬───────┬───────┬───────╮
-// | REDO1 |  ESC  |  CUT  | COPY  | PASTE | UNDO  |     | SC_UP | SC_LT | MV_UP | SC_RT |  ALL  |       |
-// | REDO2 |  LGUI |  LALT | LSHFT | LCTRL | FAST  |     | SC_DN | MV_LT | MV_DN | MV_RT |  DEL  |       |
-// |       |       |       |       |       | SLOW  |     |       |  MB4  |  MB5  |       |       |       |
+// | REDO1 |  ESC  |  CUT  | COPY  | PASTE | UNDO  |     | SC_UP | SC_LT | MV_UP | SC_RT |  ALL  |  AMNE |
+// | REDO2 |  LGUI |  LALT | LSHFT | LCTRL | FAST  |     | SC_DN | MV_LT | MV_DN | MV_RT |  DEL  |   AME |
+// |       |       |       |       |       | SLOW  |     |       |  MB4  |  MB5  |       |       |  AMSE |
 // ╰───────┴───────┴───────┼───────┼───────┼───────┤     ├───────┼───────┼───────┼───────────────────────╯
 //                         |       |       |  (0)  |     |  RCLK |  LCLK |  MCLK |
 //                         ╰───────┴───────┴───────╯     ╰───────┴───────┴───────╯
                         bindings = <
-          &kp LC(Y)     &kp ESC        &kp LC(X)      &kp LC(C)      &kp LC(V)      &kp LC(Z)      &msc SCRL_UP     &msc SCRL_LEFT   &mmv MOVE_UP   &msc SCRL_RIGHT   &kp LC(A)      &none
-          &kp LC(LS(Z)) &kp LGUI       &kp LALT       &kp LSHFT      &kp LCTRL      &mo FMO        &msc SCRL_DOWN   &mmv MOVE_LEFT   &mmv MOVE_DOWN &mmv MOVE_RIGHT   &kp DEL        &none
-          &none         &none          &none          &none          &none          &mo SMO        &none            &mkp MB4         &mkp MB5       &none             &none          &none
+          &kp LC(Y)     &kp ESC        &kp LC(X)      &kp LC(C)      &kp LC(V)      &kp LC(Z)      &msc SCRL_UP     &msc SCRL_LEFT   &mmv MOVE_UP   &msc SCRL_RIGHT   &kp LC(A)      &amenmosne
+          &kp LC(LS(Z)) &kp LGUI       &kp LALT       &kp LSHFT      &kp LCTRL      &mo FMO        &msc SCRL_DOWN   &mmv MOVE_LEFT   &mmv MOVE_DOWN &mmv MOVE_RIGHT   &kp DEL        &amenmose
+          &none         &none          &none          &none          &none          &mo SMO        &none            &mkp MB4         &mkp MB5       &none             &none          &amenmosse
                                              &trans        &none          &trans        &mkp RCLK      &mkp LCLK     &mkp MCLK
                         >;
                 };
@@ -989,24 +495,24 @@
 //                         |       |       |  (0)  |     |       |       |       |
 //                         ╰───────┴───────┴───────╯     ╰───────┴───────┴───────╯
                         bindings = <
-          &trans        &trans         &trans         &trans         &trans         &trans         &fmsc SCRL_UP    &fmsc SCRL_LEFT  &fmmv MOVE_UP   &fmsc SCRL_RIGHT  &trans         &trans
-          &trans        &trans         &trans         &trans         &trans         &trans         &fmsc SCRL_DOWN  &fmmv MOVE_LEFT  &fmmv MOVE_DOWN &fmmv MOVE_RIGHT  &trans         &trans
-          &trans        &trans         &trans         &trans         &trans         &trans         &trans           &trans           &trans          &trans            &trans         &trans
+          &trans        &trans         &trans         &trans         &trans         &trans         &msc SC_FUP     &msc SC_FLEFT   &mmv MV_FUP    &msc SC_FRIGHT   &trans         &trans
+          &trans        &trans         &trans         &trans         &trans         &trans         &msc SC_FDOWN   &mmv MV_FLEFT   &mmv MV_FDOWN  &mmv MV_FRIGHT   &trans         &trans
+          &trans        &trans         &trans         &trans         &trans         &trans         &trans          &trans          &trans         &trans           &trans         &trans
                                              &trans         &trans          &trans         &trans      &trans       &trans
                         >;
                 };
                 slow_mouse_layer {
 // ╭───────┬───────┬───────┬───────┬───────┬───────╮     ╭───────┬───────┬───────┬───────┬───────┬───────╮
-// |       |       |       |       |       |       |     |       |       | MV_UP |       |       |       | x 1/2
-// |       |       |       |       |       |       |     |       | MV_LT | MV_DN | MV_RT |       |       | x 1/2
+// |       |       |       |       |       |       |     | SC_UP | SC_LT | MV_UP | SC_RT |       |       | x 1/2
+// |       |       |       |       |       |       |     | SC_DN | MV_LT | MV_DN | MV_RT |       |       | x 1/2
 // |       |       |       |       |       |  (1)  |     |       |       |       |       |       |       |
 // ╰───────┴───────┴───────┼───────┼───────┼───────┤     ├───────┼───────┼───────┼───────────────────────╯
 //                         |       |       |  (0)  |     |       |       |       |
 //                         ╰───────┴───────┴───────╯     ╰───────┴───────┴───────╯
                         bindings = <
-          &trans        &trans         &trans         &trans         &trans         &trans         &trans           &trans           &smmv MOVE_UP   &trans            &trans         &trans
-          &trans        &trans         &trans         &trans         &trans         &trans         &trans           &smmv MOVE_LEFT  &smmv MOVE_DOWN &smmv MOVE_RIGHT  &trans         &trans
-          &trans        &trans         &trans         &trans         &trans         &trans         &trans           &trans           &trans          &trans            &trans         &trans
+          &trans        &trans         &trans         &trans         &trans         &trans         &msc SC_SUP    &msc SC_SLEFT   &mmv MV_SUP    &msc SC_SRIGHT  &trans         &trans
+          &trans        &trans         &trans         &trans         &trans         &trans         &msc SC_SDOWN  &mmv MV_SLEFT   &mmv MV_SDOWN  &mmv MV_SRIGHT  &trans         &trans
+          &trans        &trans         &trans         &trans         &trans         &trans         &trans         &trans          &trans         &trans          &trans         &trans
                                              &trans         &trans          &trans         &trans      &trans       &trans
                         >;
                 };
